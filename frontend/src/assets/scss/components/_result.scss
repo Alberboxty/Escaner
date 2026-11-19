@@ -1,0 +1,40 @@
+
+@use "../base/variables" as *;
+
+.result {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  background: rgba($surface, 0.94);
+  border: 1px solid $line;
+  border-radius: $radius;
+
+  &__empty {
+    margin: 0;
+    color: $muted;
+    text-align: center;
+  }
+
+  &__format {
+    justify-self: start;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba($accent, 0.1);
+    color: $accent;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &__value {
+    margin: 0;
+    padding: 12px;
+    max-height: 30vh;
+    overflow: auto;
+    background: $bg;
+    border-radius: 10px;
+    font: 0.95rem/1.45 ui-monospace, Consolas, monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}

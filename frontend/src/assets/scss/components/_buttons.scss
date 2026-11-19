@@ -1,0 +1,22 @@
+
+@use "../base/variables" as *;
+
+.btn {
+  padding: 14px 16px;
+  border: 1px solid $accent;
+  border-radius: $radius;
+  background: $accent;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--ghost {
+    background: transparent;
+    color: $accent;
+  }
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}

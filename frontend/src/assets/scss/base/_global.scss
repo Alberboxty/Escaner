@@ -1,0 +1,51 @@
+
+@use "./variables" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: $bg;
+  color: $ink;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+// Transparencia para visualizar la cámara nativa
+html.escaneando,
+html.escaneando body {
+  background: transparent;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+
+  padding:
+    calc(24px + env(safe-area-inset-top))
+    16px
+    calc(48px + env(safe-area-inset-bottom));
+
+  display: grid;
+  gap: 16px;
+
+  &__header {
+    padding: 12px 16px;
+    background: rgba($surface, 0.94);
+    border-radius: $radius;
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 4px 0 0;
+      color: $muted;
+    }
+  }
+}

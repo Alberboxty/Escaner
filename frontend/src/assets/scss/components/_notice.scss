@@ -1,0 +1,21 @@
+
+@use "../base/variables" as *;
+
+.notice {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  background: rgba($surface, 0.94);
+  border: 1px solid $line;
+  border-radius: $radius;
+
+  p {
+    margin: 0;
+  }
+
+  &--error {
+    border-color: $danger;
+    color: $danger;
+  }
+}

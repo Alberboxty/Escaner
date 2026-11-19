@@ -1,111 +1,107 @@
-import { useState } from "react";
-import { Scanner } from "@yudiel/react-qr-scanner";
-import { useRef } from "react";
-import { useZoom } from "./hooks/useZoom";
 
-import './assets/scss/app.scss';
+import { useBarcodeScanner } from "./hooks/useBarcodeScanner";
 
-interface Resultado {
-  valor: string;
-  formato: string;
-}
+import { isNativePlatform } from "./utils/platform";
+
+import Scanner from "./components/Scanner/Scanner";
+import ZoomControl from "./components/ZoomControl/ZoomControl";
+import TorchButton from "./components/TorchButton/TorchButton";
+import ScanResult from "./components/ScanResult/ScanResult";
+import Notice from "./components/Notice/Notice";
+
+import "./assets/scss/app.scss";
 
 function App() {
-  
+  const {
+    resultado,
+    error,
+    permisoDenegado,
 
-  const [resultado, setResultado] = useState<Resultado | null>(null);
+    rango,
+    zoom,
+    porcentajeZoom,
+    cambiarZoom,
 
-  const scannerRef = useRef<HTMLElement>(null);
-  const { range, zoom, setZoom, info, ptz } = useZoom(scannerRef);
+    tieneLinterna,
+    linterna,
+    alternarLinterna,
 
-  const pct = range
-    ? ((zoom - range.min) / (range.max - range.min)) * 100
-    : 0;
+    abrirAjustes: abrirAjustesHook,
+  } = useBarcodeScanner();
 
-  const copiar = async () => {
-    if (resultado) await navigator.clipboard.writeText(resultado.valor);
+  const copiarResultado = async () => {
+    if (!resultado) return;
+
+    try {
+      await navigator.clipboard.writeText(resultado.valor);
+    } catch (e) {
+      console.error("Error al copiar:", e);
+    }
   };
 
-  
+  if (!isNativePlatform) {
+    return (
+      <main className="app">
+        <header className="app__header">
+          <h1>Escáner</h1>
+          <p>
+            Este escáner solo funciona dentro de la app de Android.
+          </p>
+        </header>
+      </main>
+    );
+  }
 
   return (
     <main className="app">
-      <p style={{ fontSize: 12, wordBreak: "break-all" }}>
-        {info}
-        <br />
-        {ptz}
-      </p>
       <header className="app__header">
         <h1>Escáner</h1>
         <p>Apunta a un código QR o de barras.</p>
       </header>
 
-      <section className="scanner" ref={scannerRef}>
-        <Scanner
-          constraints={{
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-            zoom: true,
-            advanced: [{ focusMode: "continuous" } as MediaTrackConstraintSet],
-          } as MediaTrackConstraints}
+      <Scanner />
 
-          components={{ finder: true, torch: true, zoom: true }}
+      {permisoDenegado && (
+        <Notice>
+          <p>
+            La app necesita permiso de cámara para escanear.
+          </p>
 
-          onScan={(codes) => {
-            const primero = codes[0];
-            if (!primero) return;
+          <button
+            className="btn"
+            onClick={abrirAjustesHook}
+          >
+            Abrir ajustes
+          </button>
+        </Notice>
+      )}
 
-            const nuevo = { valor: primero.rawValue, formato: primero.format };
+      {error && (
+        <Notice variant="error">
+          {error}
+        </Notice>
+      )}
 
-            setResultado((anterior) =>
-              anterior?.valor === nuevo.valor ? anterior : nuevo
-            );
-          }}
-          formats={["qr_code", "ean_13", "code_128"]}
+      <section className="scanner-controls">
+        <ZoomControl
+          rango={rango}
+          zoom={zoom}
+          porcentajeZoom={porcentajeZoom}
+          onChange={cambiarZoom}
         />
 
-      </section>
-
-      <section className="zoom">
-        <div className="zoom__head">
-          <label htmlFor="zoom">Zoom</label>
-          <span className="zoom__value">{range ? `${zoom.toFixed(1)}x` : "—"}</span>
-        </div>
-
-        <input
-          id="zoom"
-          className="zoom__input"
-          type="range"
-          min={range?.min ?? 1}
-          max={range?.max ?? 5}
-          step={range?.step ?? 0.1}
-          value={zoom}
-          disabled={!range}
-          style={{ "--pct": `${pct}%` } as React.CSSProperties}
-          onChange={(e) => setZoom(Number(e.target.value))}
-        />
-
-        {!range && (
-          <p className="zoom__note">Zoom no disponible en este dispositivo.</p>
+        {tieneLinterna && (
+          <TorchButton
+            activa={linterna}
+            onToggle={alternarLinterna}
+          />
         )}
       </section>
 
-      <section className="result">
-        {resultado ? (
-          <>
-            <span className="result__format">
-              {resultado.formato.replace("_", " ")}
-            </span>
-            <pre className="result__value">{resultado.valor}</pre>
-            <button className="btn" onClick={copiar}>
-              Copiar
-            </button>
-          </>
-        ) : (
-          <p className="result__empty">Todavía no has escaneado nada.</p>
-        )}
-      </section>
+      <ScanResult
+        resultado={resultado}
+        onCopy={copiarResultado}
+      />
     </main>
   );
 }

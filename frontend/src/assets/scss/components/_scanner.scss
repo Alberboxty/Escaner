@@ -1,0 +1,9 @@
+
+@use "../base/variables" as *;
+
+.scanner {
+  aspect-ratio: 1 / 1;
+  background: transparent;
+  border: 3px solid rgba(#fff, 0.9);
+  border-radius: $radius;
+}
